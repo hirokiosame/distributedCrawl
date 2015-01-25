@@ -1,0 +1,33 @@
+{
+  "name": "distributedCrawl",
+  "version": "1.0.0",
+  "description": "Uses a MySQL/MariaDB table as a queue to distribute crawling jobs to PhantomJS processes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hirokiosame/distributedCrawl.git"
+  },
+  "keywords": [
+    "distributed",
+    "crawl",
+    "phantomjs"
+  ],
+  "author": "Hiroki Osame",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hirokiosame/distributedCrawl/issues"
+  },
+  "homepage": "https://github.com/hirokiosame/distributedCrawl",
+  "dependencies": {
+    "async": "^0.9.0",
+    "clusterDistribution": "git://github.com/hirokiosame/clusterDistribution",
+    "logger": "git://github.com/hirokiosame/logger",
+    "mysql": "^2.5.4",
+    "phantomCrawler": "git://github.com/hirokiosame/phantomCrawler",
+    "read": "^1.0.5",
+    "sequelize": "^2.0.0-rc8"
+  }
+}
