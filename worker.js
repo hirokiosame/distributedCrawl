@@ -46,20 +46,18 @@ module.exports = function worker(listen){
 
 			var log = new Logger(logDir + "/" + process.pid + "_phantomLogs/" + crawlReq.queueId + "_" + +(new Date()) + ".log");
 
+			crawlReq.timeout = 60000;
+			crawlReq.imagePath = "";
+
 			phantom.req(
-				{
-					queueId: crawlReq.queueId,
-					url: crawlReq.uri,
-					imagePath: "",
-					timeout: 60000
-				},
+				crawlReq ,
 				function(err, result){
 
 					// Close log
 					log.close();
 
 					if( err ){
-						crawlReq.error = err;
+						crawlReq.error = err.message;
 						result = crawlReq;
 					}
 

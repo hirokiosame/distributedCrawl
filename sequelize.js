@@ -28,7 +28,7 @@ module.exports = function(host, database, username, password, prefix){
 	function sha1(str){
 		return crypto.createHash('sha1').update(str).digest('hex');
 	}
-
+	sequelize.hash = sha1;
 
 	// Declare Schemas
 	sequelize.Schemas = {};
@@ -55,14 +55,14 @@ module.exports = function(host, database, username, password, prefix){
 			autoIncrement: true,
 			primaryKey: true
 		},
-		uri: {
+		url: {
 			type: Sequelize.STRING(1000),
 			allowNull: false
 		},
-		title: {
-			type: Sequelize.STRING
-		},
-		uriHash: {
+		// title: {
+		// 	type: Sequelize.STRING
+		// },
+		urlHash: {
 			type: Sequelize.CHAR(40),
 			allowNull: false,
 			unique: true
@@ -78,12 +78,16 @@ module.exports = function(host, database, username, password, prefix){
 			references: sequelize.Schemas.crawlStatuses,
 			referencesKey: "statusId",
 			allowNull: true
+		},
+		level: {
+			type: Sequelize.INTEGER,
+			allowNull: false
 		}
 	},
 	{
 		instanceMethods: {
 			hash: function(v){
-				this.uriHash = sha1(this.uri);
+				this.urlHash = sha1(this.url);
 				return this;
 			}
 		},
@@ -115,26 +119,26 @@ module.exports = function(host, database, username, password, prefix){
 		action: {
 			type: Sequelize.STRING
 		},
-		uriHash: {
+		formHash: {
 			type: Sequelize.CHAR(40),
 			allowNull: false,
 			unique: true
-		},
+		}
 	},
 	{
 		instanceMethods: {
 			hash: function(v){
-				this.uriHash = sha1(this.action);
+				this.formHash = sha1(this.action);
 				return this;
 			}
 		},
-		hooks: {
-			beforeBulkCreate: function(rows){
-				rows.forEach(function(row){
-					row.hash();
-				});
-			}
-		}
+		// hooks: {
+		// 	beforeBulkCreate: function(rows){
+		// 		rows.forEach(function(row){
+		// 			row.hash();
+		// 		});
+		// 	}
+		// }
 	});
 
 	sequelize.Schemas.aggInputs = sequelize.define((prefix ? prefix + '_' : '') + 'aggInputs', {
@@ -150,14 +154,27 @@ module.exports = function(host, database, username, password, prefix){
 			references: sequelize.Schemas.aggForms,
 			referencesKey: "formId"
 		},
-		name: {
+		type: {
 			type: Sequelize.STRING
 		},
-		type: {
+		name: {
 			type: Sequelize.STRING
 		},
 		value: {
 			type: Sequelize.STRING
+		},
+		inputHash: {
+			type: Sequelize.CHAR(40),
+			allowNull: false,
+			unique: true
+		}
+	},
+	{
+		instanceMethods: {
+			hash: function(v){
+				this.inputHash = sha1(this.pageId + this.fromId + this.name + this.value);
+				return this;
+			}
 		}
 	});
 

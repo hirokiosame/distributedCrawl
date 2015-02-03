@@ -39,7 +39,7 @@ module.exports = function(sequelize){
 					// 	queueId: { not: [except] }
 					// },
 					limit: n,
-					order: "RAND()"
+					order: "level ASC, RAND()"
 				}, { raw: true }).complete(function(err, rows){
 					if( err ){ console.log(this.sql); throw err; }
 
