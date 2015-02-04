@@ -40,7 +40,7 @@ module.exports = function(sequelize){
 					// },
 					limit: n,
 					order: "level ASC, RAND()"
-				}, { raw: true }).complete(function(err, rows){
+				}, { raw: true }).on('sql', console.log).complete(function(err, rows){
 					if( err ){ console.log(this.sql); throw err; }
 
 					if( rows.length === 0 ){
