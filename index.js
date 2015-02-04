@@ -53,8 +53,7 @@
 		if( typeof credentials !== "object" || !(credentials instanceof Object) ){ throw new Error("Credentials is an invalid object"); }
 
 		if( !["host", "user", "password", "database", "table"].every(function(prop){
-			return	credentials.hasOwnProperty(prop) &&
-					typeof credentials[prop] === "string" &&
+			return	typeof credentials[prop] === "string" &&
 					credentials[prop].length > 0;
 		}) ){ throw new Error("Credentials don't have valid properties"); }
 
