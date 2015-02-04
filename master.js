@@ -44,7 +44,7 @@ module.exports = function(sequelize){
 					if( err ){ console.log(this.sql); throw err; }
 
 					if( rows.length === 0 ){
-						return console.log("Error! 0 rows returned", this.sql );
+						return console.log("Error! 0 rows returned", this );
 					}
 
 					rows.forEach(cb);
