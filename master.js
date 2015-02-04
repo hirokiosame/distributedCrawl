@@ -41,10 +41,13 @@ module.exports = function(sequelize){
 					limit: n,
 					order: "level ASC, RAND()"
 				}, { raw: true }).on('sql', console.log).complete(function(err, rows){
-					if( err ){ console.log(this.sql); throw err; }
+					if( err ){ throw err; }
 
 					if( rows.length === 0 ){
-						return console.log("Error! 0 rows returned", arguments);
+						console.log("Error! 0 rows returned", arguments);
+
+						getNext(n, cb);
+						return;
 					}
 
 					rows.forEach(cb);
