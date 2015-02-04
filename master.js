@@ -1,7 +1,7 @@
 module.exports = function(sequelize){
 
 
-	var parseResult = require("./parseREsult")(sequelize);
+	var parseResult = require("./parseResult")(sequelize);
 
 	var fs = require("fs");
 	function mkDir(dirName){
