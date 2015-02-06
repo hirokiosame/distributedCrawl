@@ -102,29 +102,7 @@ module.exports = function(sequelize){
 
 		prepareLog(workers, function(){
 
-			// Keep tabs
-			setInterval(function logWorkers(){
-				console.log("<-------Worker info------");
-				console.log("Workers available:", workers.length);
-				console.log("Worker Stats:");
-				for( var i in workerTabs ){
-					if( workerTabs[i] ){
-						console.log(
-							"\t", i, "(Elapsed " + sec2Time(new Date() - workerTabs[i].started) + ")",
-							JSON.stringify(workerTabs[i].row)
-						// 	"\tworker["+i+"] (Elapsed " + sec2Time((new Date()) - workerTabs[i].started) + "):",
-						// 	"ID:", workerTabs[i].row.id,
-						// 	"; Host:", workerTabs[i].row.host,
-						// 	"; Checked:", workerTabs[i].row.checked,
-						// 	"; Saved:", workerTabs[i].row.saved
-						);
-					}
-				}
-				console.log("------------------------->");
-			}, 5000);
-
-			// Fetch rows for workers
-			getNext(workers.length, function each(row){
+			function each(row){
 
 				// If no workers are available, ignore
 				if( workers.length === 0 ){ return; }
@@ -136,10 +114,13 @@ module.exports = function(sequelize){
 				// console.log("Sending worker [" + workerPid + "]: ", row.id, row.host);
 
 				// Keep tabs
-				workerTabs[workerPid] = { started: new Date(), row: row };
+				workerTabs[workerPid] = { started: new Date(), row: row, worker: worker.listeningTo };
 
 				// Send work
-				worker.send( row, parseResult(function(){
+				worker.send( row, function(result){
+
+
+					if( !workerTabs[workerPid] ){ return; }
 
 					// Remove tab
 					workerTabs[workerPid] = null;
@@ -148,11 +129,43 @@ module.exports = function(sequelize){
 					workers.push(worker);
 
 					// Get next row
-					setImmediate(function(){
-						getNext(workers.length, each);
-					});
-				}));
-			});
+					setImmediate(function(){ getNext(workers.length, each); });
+				});
+			}
+
+
+			// Keep tabs
+			setInterval(function logWorkers(){
+				console.log("<-------Worker info------");
+				console.log("Workers available:", workers.length);
+				console.log("Worker Stats:");
+				for( var i in workerTabs ){
+					if( !workerTabs[i] ){ continue; }
+
+					var elapsed = new Date() - workerTabs[i].started;
+					console.log(
+						"\t", i, "(Elapsed " + sec2Time(elapsed) + ")",
+						JSON.stringify(workerTabs[i].row, function(k, v){
+							if( ["urlHash", "createdAt", "updatedAt"].indexOf(k) !== -1 ){ return; }
+							return v;
+						})
+					);
+					if( elapsed/1000 > 60*2 ){
+						console.log("\t", i, "taking too long... killing");
+
+						workerTabs[i].worker.kill();
+
+						// Remove tab
+						workerTabs[i] = null;
+
+						setTimeout(function(){ getNext(workers.length, each); }, 1000);
+					}
+				}
+				console.log("------------------------->");
+			}, 5000);
+
+			// Fetch rows for workers
+			getNext(workers.length, each);
 		});
 	};
 };
